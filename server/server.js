@@ -31,12 +31,12 @@ io.on('connection', (socket) => {
     //Event listener for client emitting createMessage
     socket.on('createMessage', (message) => {
 
-        //Emit the created message to the client with a timestamp
-        socket.emit('newMessage', {
+        //Emits newMessage event and creats server side time stamp
+        io.emit('newMessage', {
             from: message.from,
             text: message.text,
             createdAt: new Date().getTime()
-        });
+        })
     });
 });
 
