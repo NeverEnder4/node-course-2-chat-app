@@ -5,7 +5,7 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 /****************  IMPORTED LOCAL MODULES  *******************/
-const { generateMessage } = require('./utils/message');
+const { generateMessage, generateLocationMessage } = require('./utils/message');
 
 //Path to index.html
 const publicPath = path.join(__dirname, '../public');
@@ -22,7 +22,7 @@ var server = http.createServer(app);
 /****************  CREATES SOCKETIO SERVER CONNECTION  *******************/
 var io = socketIO(server);
 
-//Registers event listener, listens for a new client connection
+//Registers event listener, listens for a new client connection, returns socket var
 io.on('connection', (socket) => {
 
     //socket.emit from Admin text Welcome to the chat app
@@ -30,11 +30,6 @@ io.on('connection', (socket) => {
 
     //socket.broadcast.emit from Admin text New user joined
     socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
-
-    //Listens for the client to disconnect
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
 
     //Event listener for client emitting createMessage
     //Callback from emitted event as 3rd parameter
@@ -45,7 +40,18 @@ io.on('connection', (socket) => {
         io.emit('newMessage', generateMessage(message.from, message.text));
         callback('This is from the server.');
     });
+
+    socket.on('createLocationMessage', (coords) => {
+        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+    });
+
+    //Listens for the client to disconnect
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
+    
 });
+
 
 //Serves static assets from specifed path
 app.use(express.static(publicPath));
