@@ -14,18 +14,21 @@ socket.on('disconnect', function () {
 
  //Listens for new message event and data emitted from server and adds it to the DOM
  socket.on('newMessage', function (message) {
-    console.log('New message:', message);
+    var formattedTime = moment(message.createdAt).format('h:mm:ss a');
+
     var li = $('<li></li>');
-    li.text(`${message.from}: ${message.text} `);
+    li.text(`${message.from} (${formattedTime}): ${message.text} `);
     $('#messages').append(li);
 });
 
 //Listens for new location message from the server and adds it to the DOM
 socket.on('newLocationMessage', function(message) {
+    var formattedTime = moment(message.createdAt).format('h:mm:ss a');
+
     var li = $('<li></li>');
     var a = $('<a target="_blank">My current location</a>');
 
-    li.text(`${message.from}: `);
+    li.text(`${message.from} (${formattedTime}): `);
     a.attr('href', message.url);
     li.append(a);
     $('#messages').append(li);
