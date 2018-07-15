@@ -35,11 +35,23 @@ socket.on('newLocationMessage', function(message) {
 });
 
 var messageTextBox = $('[name=message]');
+var sendButton = $('#send-message');
+sendButton.attr('disabled', 'disabled');
+
+//Messagebox on change keyup handler
+messageTextBox.on('change keyup', function() {
+    if($.trim(messageTextBox.val()) !== '') {
+        sendButton.removeAttr('disabled');
+    } else {
+        sendButton.attr('disabled', 'disabled');
+    }
+});
 
 //Message form handler
 $('#message-form').on('submit', function(e) {
     e.preventDefault();
 
+    
     socket.emit('createMessage', {
         from: 'User',
         text: messageTextBox.val()

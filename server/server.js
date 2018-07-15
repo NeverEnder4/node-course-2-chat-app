@@ -34,9 +34,12 @@ io.on('connection', (socket) => {
     //Event listener for client emitting createMessage
     //Callback from emitted event as 3rd parameter
     socket.on('createMessage', (message, callback) => {
-        console.log(message);
         //Emits event to everyone
         //Pass in argument for callback that will return to client 
+
+        if(!$.trim(message.text)) {
+            return;
+        }
         io.emit('newMessage', generateMessage(message.from, message.text));
         callback();
     });
