@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/server",
-    "watch": "nodemon server/server"
+    "watch": "nodemon server/server",
+    "test": "mocha server/**/*.test.js",
+    "test-watch": "nodemon --exec \"npm test\""
   },
   "engines": {
     "node": "10.6.0"
@@ -15,5 +17,9 @@
   "dependencies": {
     "express": "^4.16.3",
     "socket.io": "^2.1.1"
+  },
+  "devDependencies": {
+    "expect": "^23.4.0",
+    "mocha": "^5.2.0"
   }
 }

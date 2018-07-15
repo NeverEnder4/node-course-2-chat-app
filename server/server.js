@@ -1,8 +1,11 @@
-/****************  IMPORTED 3rd PARTY PACKAGES  *******************/
+/****************  IMPORTED 3rd PARTY MODULES  *******************/
 const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
+
+/****************  IMPORTED LOCAL MODULES  *******************/
+const { generateMessage } = require('./utils/message');
 
 //Path to index.html
 const publicPath = path.join(__dirname, '../public');
@@ -23,16 +26,9 @@ var io = socketIO(server);
 io.on('connection', (socket) => {
 
     //socket.emit from Admin text Welcome to the chat app
-    socket.emit('newMessage', {
-        from: 'Admin',
-        text: 'Welcome to chat app!'
-    });
+    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app!'));
     //socket.broadcast.emit from Admin text New user joined
-    socket.broadcast.emit('newMessage', {
-        from: 'Admin',
-        text: 'New user has joined',
-        createdAt: new Date().getTime()
-    });
+    socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
 
     //Listens for the client to disconnect
     socket.on('disconnect', () => {
@@ -43,20 +39,8 @@ io.on('connection', (socket) => {
     socket.on('createMessage', (message) => {
 
         //Emits event to everyone but user who emits it
-        socket.broadcast.emit('newMessage', {
-            from: message.from,
-            text: message.text,
-            createdAt: new Date().getTime()
-        });
+        socket.broadcast.emit('newMessage', generateMessage(message.from, message.text));
     });
-        //Emits newMessage event and creats server side time stamp to all users
-    //     io.emit('newMessage', {
-    //         from: message.from,
-    //         text: message.text,
-    //         createdAt: new Date().getTime()
-    //     })
-    // });
-
 });
 
 //Serves static assets from specifed path
