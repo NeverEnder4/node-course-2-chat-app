@@ -27,6 +27,7 @@ io.on('connection', (socket) => {
 
     //socket.emit from Admin text Welcome to the chat app
     socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app!'));
+
     //socket.broadcast.emit from Admin text New user joined
     socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
 
@@ -36,10 +37,13 @@ io.on('connection', (socket) => {
     });
 
     //Event listener for client emitting createMessage
-    socket.on('createMessage', (message) => {
-
-        //Emits event to everyone but user who emits it
-        socket.broadcast.emit('newMessage', generateMessage(message.from, message.text));
+    //Callback from emitted event as 3rd parameter
+    socket.on('createMessage', (message, callback) => {
+        console.log(message);
+        //Emits event to everyone
+        //Pass in argument for callback that will return to client 
+        io.emit('newMessage', generateMessage(message.from, message.text));
+        callback('This is from the server.');
     });
 });
 
