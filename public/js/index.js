@@ -16,22 +16,30 @@ socket.on('disconnect', function () {
  socket.on('newMessage', function (message) {
     var formattedTime = moment(message.createdAt).format('h:mm:ss a');
 
-    var li = $('<li></li>');
-    li.text(`${message.from} (${formattedTime}): ${message.text} `);
-    $('#messages').append(li);
+    //Create a string containing html elements in template
+    var template = $('#message-template').html();
+
+    //Render the template in indexl.html making the variables accessable
+    var html = Mustache.render(template, {
+        text: message.text,
+        from: message.from,
+        createdAt: formattedTime
+    });
+
+    $('#messages').append(html);
 });
 
 //Listens for new location message from the server and adds it to the DOM
 socket.on('newLocationMessage', function(message) {
     var formattedTime = moment(message.createdAt).format('h:mm:ss a');
+    var template = $('#location-message-template').html();
+    var html = Mustache.render(template, {
+        from: message.from,
+        url: message.url,
+        createdAt: formattedTime
+    });
 
-    var li = $('<li></li>');
-    var a = $('<a target="_blank">My current location</a>');
-
-    li.text(`${message.from} (${formattedTime}): `);
-    a.attr('href', message.url);
-    li.append(a);
-    $('#messages').append(li);
+    $('#messages').append(html);
 });
 
 var messageTextBox = $('[name=message]');
