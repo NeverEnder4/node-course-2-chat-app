@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
         //Emits event to everyone
         //Pass in argument for callback that will return to client 
 
-        if(!$.trim(message.text)) {
+        if(!message.text.trim()) {
             return;
         }
         io.emit('newMessage', generateMessage(message.from, message.text));
