@@ -1,3 +1,4 @@
+/****************  IMPORTED 3rd PARTY PACKAGES  *******************/
 const path = require('path');
 const http = require('http');
 const express = require('express');
@@ -15,17 +16,27 @@ var app = express();
 //Turns your computer into an HTTP server and creates an http server object
 var server = http.createServer(app);
 
-//Create web-socket server
+/****************  CREATES SOCKETIO SERVER CONNECTION  *******************/
 var io = socketIO(server);
 
-//Registers event listener, 'connection' lets you listen for a new connection
-//socket is similar to the var in index.html
+//Registers event listener, listens for a new client connection
 io.on('connection', (socket) => {
     console.log('New user connected');
 
     //Listens for the client to disconnect
     socket.on('disconnect', () => {
         console.log('User disconnected');
+    });
+
+    //Event listener for client emitting createMessage
+    socket.on('createMessage', (message) => {
+
+        //Emit the created message to the client with a timestamp
+        socket.emit('newMessage', {
+            from: message.from,
+            text: message.text,
+            createdAt: new Date().getTime()
+        });
     });
 });
 
