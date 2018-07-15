@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server/server.js"
+    "start": "node server/server",
+    "watch": "nodemon server/server"
   },
   "engines": {
     "node": "10.6.0"

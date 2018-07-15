@@ -21,7 +21,18 @@ var io = socketIO(server);
 
 //Registers event listener, listens for a new client connection
 io.on('connection', (socket) => {
-    console.log('New user connected');
+
+    //socket.emit from Admin text Welcome to the chat app
+    socket.emit('newMessage', {
+        from: 'Admin',
+        text: 'Welcome to chat app!'
+    });
+    //socket.broadcast.emit from Admin text New user joined
+    socket.broadcast.emit('newMessage', {
+        from: 'Admin',
+        text: 'New user has joined',
+        createdAt: new Date().getTime()
+    });
 
     //Listens for the client to disconnect
     socket.on('disconnect', () => {
@@ -31,13 +42,21 @@ io.on('connection', (socket) => {
     //Event listener for client emitting createMessage
     socket.on('createMessage', (message) => {
 
-        //Emits newMessage event and creats server side time stamp
-        io.emit('newMessage', {
+        //Emits event to everyone but user who emits it
+        socket.broadcast.emit('newMessage', {
             from: message.from,
             text: message.text,
             createdAt: new Date().getTime()
-        })
+        });
     });
+        //Emits newMessage event and creats server side time stamp to all users
+    //     io.emit('newMessage', {
+    //         from: message.from,
+    //         text: message.text,
+    //         createdAt: new Date().getTime()
+    //     })
+    // });
+
 });
 
 //Serves static assets from specifed path
