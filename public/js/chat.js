@@ -2,6 +2,7 @@
 var socket = io();
 const $ = jQuery;
 
+//Auto scroll to bottom when at bottom function
 function scrollToBottom () {
     //Selectors
     var messages = $('#messages');
@@ -21,7 +22,16 @@ function scrollToBottom () {
         
 /****************  CONNECTION TO SERVER  *******************/
 socket.on('connect', function () {
-    console.log('Connected to server');
+    var params = $.deparam(window.location.search);
+
+    socket.emit('join', params, function(err) {
+        if (err) {
+            alert(err);
+            window.location.href = '/';
+        } else {
+            console.log('No error');
+        }
+    });
 });
 
 //Listens for server disconnect

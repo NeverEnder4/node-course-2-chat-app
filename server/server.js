@@ -6,6 +6,7 @@ const socketIO = require('socket.io');
 
 /****************  IMPORTED LOCAL MODULES  *******************/
 const { generateMessage, generateLocationMessage } = require('./utils/message');
+const { isRealString } = require('./utils/validation');
 
 //Path to index.html
 const publicPath = path.join(__dirname, '../public');
@@ -25,11 +26,20 @@ var io = socketIO(server);
 //Registers event listener, listens for a new client connection, returns socket var
 io.on('connection', (socket) => {
 
-    //socket.emit from Admin text Welcome to the chat app
+    //On join event validate the parameters sent by submitted form
+    socket.on('join', (params, callback) => {
+        if (!isRealString(params.name) || !isRealString(params.room)) {
+            callback('Name and room are required');
+        }
+
+        socket.join(params.room);
+
+         //socket.emit from Admin text Welcome to the chat app
     socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app!'));
 
     //socket.broadcast.emit from Admin text New user joined
-    socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
+    socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined`));
+    });
 
     //Event listener for client emitting createMessage
     //Callback from emitted event as 3rd parameter
