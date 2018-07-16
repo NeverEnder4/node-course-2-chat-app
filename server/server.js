@@ -53,18 +53,23 @@ io.on('connection', (socket) => {
     //Event listener for client emitting createMessage
     //Callback from emitted event as 3rd parameter
     socket.on('createMessage', (message, callback) => {
-        //Emits event to everyone
-        //Pass in argument for callback that will return to client 
+        var user = users.getUser(socket.id);
+
+        if (user && isRealString(message.text)) {
+            io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+        }
 
         if(!message.text.trim()) {
             return;
         }
-        io.emit('newMessage', generateMessage(message.from, message.text));
+        
         callback();
     });
 
     socket.on('createLocationMessage', (coords) => {
-        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+        var user = users.getUser(socket.id);
+
+        io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
     });
 
     //Listens for the client to disconnect
