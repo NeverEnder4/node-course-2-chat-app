@@ -7,6 +7,8 @@ const socketIO = require('socket.io');
 /****************  IMPORTED LOCAL MODULES  *******************/
 const { generateMessage, generateLocationMessage } = require('./utils/message');
 const { isRealString } = require('./utils/validation');
+const { Users } = require('./utils/users');
+
 
 //Path to index.html
 const publicPath = path.join(__dirname, '../public');
@@ -23,16 +25,23 @@ var server = http.createServer(app);
 /****************  CREATES SOCKETIO SERVER CONNECTION  *******************/
 var io = socketIO(server);
 
+//Creates a new instance of users
+var users = new Users();
+
 //Registers event listener, listens for a new client connection, returns socket var
 io.on('connection', (socket) => {
 
     //On join event validate the parameters sent by submitted form
     socket.on('join', (params, callback) => {
         if (!isRealString(params.name) || !isRealString(params.room)) {
-            callback('Name and room are required');
+            return callback('Name and room are required');
         }
 
         socket.join(params.room);
+        users.removeUser(socket.id);
+        users.addUser(socket.id, params.name, params.room);
+
+        io.to(params.room).emit('updateUserList', users.getUserList(params.room));
 
          //socket.emit from Admin text Welcome to the chat app
     socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app!'));
@@ -60,7 +69,12 @@ io.on('connection', (socket) => {
 
     //Listens for the client to disconnect
     socket.on('disconnect', () => {
-        console.log('User disconnected');
+        var user  = users.removeUser(socket.id);
+
+        if (user) {
+            io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+            io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left the room`));
+        }
     });
     
 });
